@@ -1,6 +1,6 @@
-import { MongoClient } from 'mongodb'
 import MeetupList from '../components/meetups/MeetupList'
 import { useState, useEffect } from 'react'
+import { connectClient } from './api/utils'
 
 const DUMMY_MEETUPS = [
   {
@@ -40,11 +40,8 @@ export default function HomePage(props) {
 // }
 
 export async function getStaticProps() {
-  const client = await MongoClient.connect(
-    'mongodb+srv://nextjs-tester:dR4bBu8MsAhKzXMi@cluster0.arpq7.mongodb.net/meetups?retryWrites=true&w=majority'
-  )
+  const client = await connectClient()
   const db = client.db()
-
   const meetupsCollection = db.collection('meetups')
 
   const meetups = await meetupsCollection.find().toArray()
