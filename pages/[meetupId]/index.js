@@ -1,9 +1,11 @@
 import MeetupDetail from '../../components/meetups/MeetupDetail'
+import { connectClient } from '../api/utils'
+import { ObjectId } from 'mongodb'
 
 export default function MeetupDetailPage(props) {
   return (
     <MeetupDetail
-      img={props.meetupData.img}
+      image={props.meetupData.image}
       title={props.meetupData.title}
       address={props.meetupData.address}
       description={props.meetupData.description}
@@ -12,34 +14,41 @@ export default function MeetupDetailPage(props) {
 }
 
 export async function getStaticPaths() {
+  const client = await connectClient()
+  const db = client.db()
+  const meetupsCollection = db.collection('meetups')
+
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray()
+
+  client.close()
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: 'm1',
-        },
-      },
-      {
-        params: {
-          meetupId: 'm2',
-        },
-      },
-    ],
+    paths: (await meetups).map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
   }
 }
 
 export async function getStaticProps(context) {
+  const client = await connectClient()
+  const db = client.db()
+  const meetupsCollection = db.collection('meetups')
+
   const meetupId = context.params.meetupId
+
+  const meetup = await meetupsCollection.findOne({ _id: ObjectId(meetupId) })
+
+  client.close()
 
   return {
     props: {
       meetupData: {
-        id: meetupId,
-        img: 'https://upload.wikimedia.org/wikipedia/commons/d/d3/Stadtbild_M%C3%BCnchen.jpg',
-        title: 'A First Meetup',
-        address: 'Some address 5, 12345 Some City',
-        description: 'This is a first meetup',
+        id: meetup._id.toString(),
+        image: meetup.image,
+        title: meetup.title,
+        address: meetup.address,
+        description: meetup.description,
       },
     },
     revalidate: 10,
