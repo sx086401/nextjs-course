@@ -9,7 +9,7 @@ Study Project by [Next.js Crash Course for Beginners 2021 - Learn NextJS from Sc
 - The root component is the `_app.js`
 - `getStaticProps` will prepare the data before rendering (SSR)
   - it can be async
-  - always return a object with a `props` properity
+  - always return a object with a `props` property
   - the `props` will be the page's `props`
   - set the server re-pre-generated ever seconds you set in `revalidate`
   - with `revalidate` the page won't stuck in same data
